@@ -19,6 +19,7 @@ The workflow followed was as follows:
     Prepping the dataset
 
 The project is based on the dataset of soybean leaves damaged by insects. Image capturing was done on several soybean farms, under realistic weather conditions, using two cell phones and a UAV. The data set consists of 3 categories: (a) healthy plants, (b) plants affected by caterpillars, and (c) images of plants damaged by Diabrotica speciosa with a total of 6410 images.Data Augmentation has been applied to them and they are standardized to a size of 224 x 224.
+
 Since TensorFlow cannot use these folders directly as part of the training process, the data must be processed in a recognizable format which is the TF record. For it, the script is located on ["tf_record.py"](https://github.com/jrobador/resnet50-classification/blob/main/scripts/tf_records/tf_record.py).  This script is taken from [Imagenet to gcs](https://github.com/tensorflow/tpu/blob/master/tools/datasets/imagenet_to_gcs.py).
 
 The TF record is a format used by the TensorFlow training environment to send data/labels to the model during training and validation. Small datasets can take advantage of other mechanisms for feeding data, but for larger datasets that don't fit in the available GPU memory, TF registers are the de facto mechanism for training. For it, the training fragment and validation fragment numbers were taken into account. TF's recommendation is that these shards be approximately 100MB each based on the following performance guide.
@@ -29,22 +30,30 @@ For validation images, raw images are needed for use with Vitis AI (for quantifi
 
 To train the model, 3 Python codes were used:
 a- [The code that performs the training and validation](https://github.com/jrobador/resnet50-classification/blob/main/com/dataset.py)
+
 b- [The code in charge of extracting characteristics from the dataset and providing functions necessary for training and validation](https://github.com/jrobador/resnet50-classification/blob/main/com/dataset.py)
+
 c- [The code that describes functions used to process the images](https://github.com/jrobador/resnet50-classification/blob/main/com/images_preprocessing.py).
 
     Model Quantization and Compilation
 
 Quantization: AI Quantizer is used to reduce model complexity without losing accuracy. The task of this is to convert weights and activations from 32-bit floating point to fixed point as INT8. The fixed-point network model requires less memory bandwidth, which provides faster speeds and higher power efficiency than the floating-point model. To run it on my model, I used the code described in model training by modifying the code flags. This generates a file with an .h5 type extension. 
+
 Compilation: Maps the AI model to a high-efficient instruction set and data flow. Also performs optimizations such as layer fusion, instruction scheduling, and reuses on-chip memory as much as possible. For the compilation I used the script.sh located on the compile folder. This takes the quantized model, instantiates the .json file of the VCK5000 DPU (DPUCVDX8H), and generates the necessary output file to perform the deployment. This generates the .xmodel file, a meta.json and a text file md5sum.txt to verify the integrity. 
 
 
     Deployment on the VCK5000
 
 Once the model has been compiled, a C++ API is needed for implementation. The Vitis AI development kit offers a unified set of high-level C++/Python programming APIs to facilitate the development of machine learning applications on Xilinx cloud-to-edge devices, with DPUCVDX8H for convolutional neural networks for VCK5000 devices. Provides the benefits of easily porting deployed DPU applications from the cloud to the edge or vice versa.
+
 Before carrying out the deployment, it is necessary to install and verify some frequent problems that I encountered when I carried out the project.
+
 Some software packages need to be installed for the board to work. You can follow the tutorial on the [VCK5000 Card Setup](https://github.com/Xilinx/Vitis-AI/tree/1.4.1/setup/vck5000).
+
   First, the ./install script found in Vitis-AI/setup/vck5000 must be run. This installs the Xilinx Runtime Library (XRT), Xilinx Resource Manager (XRT), and the V4E xclbin DPU for the vck5000.
+  
   Second, some tools for flashing and validation must be installed.
+  
 In order to detect the board working, you must run:
  ``` sudo /opt/xilinx/xrt/bin/xbmgmt flash --scan ```. After a restart this should show our VCK5000 is running version 4.4.6.
   ```
@@ -146,6 +155,7 @@ Warnings produced during test [1 device(s)] (Note: The given test successfully v
 
 ```
 Afterwards, the command source /workspace/setup/vck5000/setup.sh must be run to configure the work environment of the card.
+
 Then, the following command must be used to avoid problems with the assignment of permissions:  ``` sudo chmod o=rw /dev/dri/render*  ```
 
 To compile the software, we run  ``` ./build.sh ```. This script uses 3 files located in [src](https://github.com/jrobador/resnet50-classification/tree/main/deploy/src).
@@ -155,6 +165,7 @@ To run the model, run as follows: ``` .../resnet_bc .../VCK5000/resnet50_tf2_BC.
 The results are....
 
 **Next Steps**
+
 This project represents the first step applying Artificial Intelligence on Agriculture Applications. The results show the excellent efficiency that VCK5000 can provide. In the future I hope to create other models that can be joined with this one through a high-level API. Also, it is interesting to combine computer vision with machine learning models based on time series that allow farmers to predict the amount they are going to harvest based on the state of their crops' leaves. There are no solutions of this type on the market that offer a cloud-based service that is easy to use for the end consumer. 
 
 

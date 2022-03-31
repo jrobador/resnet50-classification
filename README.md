@@ -39,7 +39,7 @@ Some software packages need to be installed for the board to work. You can follo
   First, the ./install script found in Vitis-AI/setup/vck5000 must be run. This installs the Xilinx Runtime Library (XRT), Xilinx Resource Manager (XRT), and the V4E xclbin DPU for the vck5000.
   Second, some tools for flashing and validation must be installed.
 In order to detect the board working, you must run:
-sudo /opt/xilinx/xrt/bin/xbmgmt flash --scan. After a restart this should show our VCK5000 is running version 4.4.6.
+ ``` sudo /opt/xilinx/xrt/bin/xbmgmt flash --scan ```. After a restart this should show our VCK5000 is running version 4.4.6.
   ```
   ---------------------------------------------------------------------
 Deprecation Warning:
@@ -65,7 +65,7 @@ Card [0000:03:00.0]
         xilinx_vck5000-es1_gen3x16_base_2,[ID=0xb376430f2629b15d],[SC=4.4.6]
 
   ```
-sudo /opt/xilinx/xrt/bin/xbmgmt flash --update
+- ``` sudo /opt/xilinx/xrt/bin/xbmgmt flash --update  ```
  ```
 ---------------------------------------------------------------------
 Deprecation Warning:
@@ -88,7 +88,7 @@ Card [0000:03:00.0]:
 Card(s) up-to-date and do not need to be flashed.
  ```
 Finally, the validation utility can be used to verify that the board is working correctly:
-/opt/xilinx/xrt/bin/xbutil validate --device 0000:03:00.1 
+ ``` /opt/xilinx/xrt/bin/xbutil validate --device 0000:03:00.1  ```
 ```
 Starting validation for 1 devices
 
@@ -139,11 +139,17 @@ Warnings produced during test [1 device(s)] (Note: The given test successfully v
 
 ```
 Afterwards, the command source /workspace/setup/vck5000/setup.sh must be run to configure the work environment of the card.
-Then, the following command must be used to avoid problems with the assignment of permissions: sudo chmod o=rw /dev/dri/render* 
+Then, the following command must be used to avoid problems with the assignment of permissions:  ``` sudo chmod o=rw /dev/dri/render*  ```
 
-To compile the software, we run ./build.sh. This script uses 3 files located in [src](https://github.com/jrobador/resnet50-classification/tree/main/deploy/src).
+To compile the software, we run  ``` ./build.sh ```. This script uses 3 files located in [src](https://github.com/jrobador/resnet50-classification/tree/main/deploy/src).
 
-To run the model, run as follows: .../resnet_bc .../VCK5000/resnet50_tf2_BC.xmodel .../path-to-images/ 
+To run the model, run as follows: ``` .../resnet_bc .../VCK5000/resnet50_tf2_BC.xmodel .../path-to-images/ ```
+
+The results are....
+
+**Next Steps**
+This project represents the first step applying Artificial Intelligence on Agriculture Applications. The results show the excellent efficiency that VCK5000 can provide. In the future I hope to create other models that can be joined with this one through a high-level API. Also, it is interesting to combine computer vision with machine learning models based on time series that allow farmers to predict the amount they are going to harvest based on the state of their crops' leaves. There are no solutions of this type on the market that offer a cloud-based service that is easy to use for the end consumer. 
+
 
 
 

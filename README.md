@@ -162,7 +162,29 @@ To compile the software, we run  ``` ./build.sh ```. This script uses 3 files lo
 
 To run the model, run as follows: ``` .../resnet_bc .../VCK5000/resnet50_tf2_BC.xmodel .../path-to-images/ ```
 
-The results are....
+The output classes delivered from this project model were as follows:
+ ```
+ Image : Diabroticaspeciosa_(128).jpg
+top[0] prob = 0.982466  name = Diabrotica speciosa
+top[1] prob = 0.010914  name = Caterpillar
+top[2] prob = 0.006620  name = Healthy
+
+Image : Caterpillar_(3181).jpg
+top[0] prob = 0.877290  name = Caterpillar
+top[1] prob = 0.122697  name = Diabrotica speciosa
+top[2] prob = 0.000013  name = Healthy
+
+Image : Diabroticaspeciosa_(64).jpg
+top[0] prob = 0.878335  name = Diabrotica speciosa
+top[1] prob = 0.118870  name = Healthy
+top[2] prob = 0.002796  name = Caterpillar
+
+Image : Healthy_(13).jpg
+top[0] prob = 0.993477  name = Healthy
+top[1] prob = 0.004060  name = Caterpillar
+top[2] prob = 0.002463  name = Diabrotica speciosa
+
+ ```
 
 **Next Steps**
 

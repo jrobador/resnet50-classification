@@ -24,7 +24,7 @@ Since TensorFlow cannot use these folders directly as part of the training proce
 
 The TF record is a format used by the TensorFlow training environment to send data/labels to the model during training and validation. Small datasets can take advantage of other mechanisms for feeding data, but for larger datasets that don't fit in the available GPU memory, TF registers are the de facto mechanism for training. For it, the training fragment and validation fragment numbers were taken into account. TF's recommendation is that these shards be approximately 100MB each based on the following performance guide.
 
-For validation images, raw images are needed for use with Vitis AI (for quantification and evaluation). The quantification, validation and test procedures use the TF validation records for these processes. The scripts provided with the Vitis AI zoo ResNet50 model expect raw images from a directory along with a tag text file that lists the image names and corresponding class id on each line.  *** REVISAR ESTA PARTE
+For validation images, raw images are needed for use with Vitis AI (for quantification and evaluation). The quantification, validation and test procedures use the TF validation records for these processes. The scripts provided with the Vitis AI zoo ResNet50 model expect raw images from a directory along with a tag text file that lists the image names and corresponding class id on each line.
 
     Training the Model
 

@@ -1,4 +1,5 @@
-# resnet50-classification
+#  Leaf-level Image classification for Agriculture Applications
+
 Leaf-level Image classification for Agriculture Applications: Detect pest attacks in the soybean crop that reduce yield and agricultural production to inspect and make decisions quickly.
 
 Agriculture is one of the main challenges facing the world in the coming years. This is important in underdeveloped countries, not only because it plays a key role in achieving their development and poverty reduction goals, but also because it is the agricultural sector in these countries that is expected to meet the growing food needs. of humanity.
@@ -20,17 +21,132 @@ For validation images, raw images are needed for use with Vitis AI (for quantifi
     Training the Model
 
 To train the model, 3 Python codes were used:
-a- The code that performs the training and validation
-b- The code in charge of extracting characteristics from the dataset and providing functions necessary for training and validation.
-c- The code in charge of preprocessing the images if necessary.
-[VER COMO SE ADJUNTA]
+a- [The code that performs the training and validation](https://github.com/jrobador/resnet50-classification/blob/main/com/dataset.py)
+b- [The code in charge of extracting characteristics from the dataset and providing functions necessary for training and validation](https://github.com/jrobador/resnet50-classification/blob/main/com/dataset.py)
+c- [The code that describes functions used to process the images](https://github.com/jrobador/resnet50-classification/blob/main/com/images_preprocessing.py).
 
     Model Quantization and Compilation
 
-Quantization: AI Quantizer is used to reduce model complexity without losing accuracy. The task of this is to convert weights and activations from 32-bit floating point to fixed point as INT8. The fixed-point network model requires less memory bandwidth, which provides faster speeds and higher power efficiency than the floating-point model. To run it on my model, I used the code described in model training by modifying the code flags. This generates a file of type [VER]
-Compilación: Maps the AI model to a high-efficient instruction set and data flow. Also performs optimizations such as layer fusion, instruction scheduling, and reuses on-chip memory as much as possible. [EXPLICAR COMO LO HICE PARA MI VCK5000 Y EL ARCHIVO QUE SE GENERA]
+Quantization: AI Quantizer is used to reduce model complexity without losing accuracy. The task of this is to convert weights and activations from 32-bit floating point to fixed point as INT8. The fixed-point network model requires less memory bandwidth, which provides faster speeds and higher power efficiency than the floating-point model. To run it on my model, I used the code described in model training by modifying the code flags. This generates a file with an .h5 type extension. 
+Compilation: Maps the AI model to a high-efficient instruction set and data flow. Also performs optimizations such as layer fusion, instruction scheduling, and reuses on-chip memory as much as possible. For the compilation I used the script.sh located on the compile folder. This takes the quantized model, instantiates the .json file of the VCK5000 DPU (DPUCVDX8H), and generates the necessary output file to perform the deployment. This generates the .xmodel file, a meta.json and a text file md5sum.txt to verify the integrity. 
+
 
     Deployment on the VCK5000
 
-Once the model has been compiled, a C++ API is needed for implementation. The Vitis AI development kit offers a unified set of high-level C++/Python programming APIs to facilitate the development of machine learning applications on Xilinx cloud-to-edge devices, with DPUCVDX8H for convolutional neural networks for VCK5000 devices. Provides the benefits of easily porting deployed DPU applications from the cloud to the edge or vice versa. [ACA AGREGO LO QUE HICE CON LA COMPILACIÓN Y CON EL PROCESO DE HACER QUE FUNCIONE]
+Once the model has been compiled, a C++ API is needed for implementation. The Vitis AI development kit offers a unified set of high-level C++/Python programming APIs to facilitate the development of machine learning applications on Xilinx cloud-to-edge devices, with DPUCVDX8H for convolutional neural networks for VCK5000 devices. Provides the benefits of easily porting deployed DPU applications from the cloud to the edge or vice versa.
+Before carrying out the deployment, it is necessary to install and verify some frequent problems that I encountered when I carried out the project.
+Some software packages need to be installed for the board to work. You can follow the tutorial on the [VCK5000 Card Setup](https://github.com/Xilinx/Vitis-AI/tree/1.4.1/setup/vck5000).
+  First, the ./install script found in Vitis-AI/setup/vck5000 must be run. This installs the Xilinx Runtime Library (XRT), Xilinx Resource Manager (XRT), and the V4E xclbin DPU for the vck5000.
+  Second, some tools for flashing and validation must be installed.
+In order to detect the board working, you must run:
+sudo /opt/xilinx/xrt/bin/xbmgmt flash --scan. After a restart this should show our VCK5000 is running version 4.4.6.
+  ```
+  ---------------------------------------------------------------------
+Deprecation Warning:
+    The given legacy sub-command and/or option has been deprecated
+    to be obsoleted in the next release.
+ 
+    Further information regarding the legacy deprecated sub-commands
+    and options along with their mappings to the next generation
+    sub-commands and options can be found on the Xilinx Runtime (XRT)
+    documentation page:
+    
+    https://xilinx.github.io/XRT/master/html/xbtools_map.html
+
+    Please update your scripts and tools to use the next generation
+    sub-commands and options.
+---------------------------------------------------------------------
+Card [0000:03:00.0]
+    Card type:		vck5000-es1
+    Flash type:		OSPI_VERSAL
+    Flashable partition running on FPGA:
+        xilinx_vck5000-es1_gen3x16_base_2,[ID=0xb376430f2629b15d],[SC=4.4.6]
+    Flashable partitions installed in system:	
+        xilinx_vck5000-es1_gen3x16_base_2,[ID=0xb376430f2629b15d],[SC=4.4.6]
+
+  ```
+sudo /opt/xilinx/xrt/bin/xbmgmt flash --update
+ ```
+---------------------------------------------------------------------
+Deprecation Warning:
+    The given legacy sub-command and/or option has been deprecated
+    to be obsoleted in the next release.
+ 
+    Further information regarding the legacy deprecated sub-commands
+    and options along with their mappings to the next generation
+    sub-commands and options can be found on the Xilinx Runtime (XRT)
+    documentation page:
+    
+    https://xilinx.github.io/XRT/master/html/xbtools_map.html
+
+    Please update your scripts and tools to use the next generation
+    sub-commands and options.
+---------------------------------------------------------------------
+Card [0000:03:00.0]: 
+	 Status: shell is up-to-date
+
+Card(s) up-to-date and do not need to be flashed.
+ ```
+Finally, the validation utility can be used to verify that the board is working correctly:
+/opt/xilinx/xrt/bin/xbutil validate --device 0000:03:00.1 
+```
+Starting validation for 1 devices
+
+Validate Device           : [0000:03:00.1]
+    Platform              : xilinx_vck5000-es1_gen3x16_base_2
+    SC Version            : 4.4.6
+    Platform ID           : 0x0
+-------------------------------------------------------------------------------
+Test 1 [0000:03:00.1]     : PCIE link 
+    Warning(s)            : Link is active
+                            Please make sure that the device is plugged into Gen 3x16,
+                            instead of Gen 3x4. Lower performance maybe experienced.
+    Test Status           : [PASSED WITH WARNINGS]
+-------------------------------------------------------------------------------
+Test 2 [0000:03:00.1]     : SC version 
+    Test Status           : [PASSED]
+-------------------------------------------------------------------------------
+Test 3 [0000:03:00.1]     : Verify kernel 
+    Test Status           : [PASSED]
+-------------------------------------------------------------------------------
+Test 4 [0000:03:00.1]     : DMA 
+    Details               : Host -> PCIe -> FPGA write bandwidth = 3102.118468 MB/s
+                            Host <- PCIe <- FPGA read bandwidth = 3294.490094 MB/s
+    Test Status           : [PASSED]
+-------------------------------------------------------------------------------
+Test 5 [0000:03:00.1]     : iops 
+    Test Status           : [PASSED]
+-------------------------------------------------------------------------------
+Test 6 [0000:03:00.1]     : Bandwidth kernel 
+    Test Status           : [PASSED]
+-------------------------------------------------------------------------------
+Test 7 [0000:03:00.1]     : vcu 
+Validation completed, but with warnings. Please run the command '--verbose' option for more details
+
+Validation Summary
+------------------
+1  device(s) evaluated
+1  device(s) validated successfully
+0  device(s) had exceptions during validation
+
+Validated successfully [1 device(s)]
+  - [0000:03:00.1] : xilinx_vck5000-es1_gen3x16_base_2
+
+Validation Exceptions [0 device(s)]
+
+Warnings produced during test [1 device(s)] (Note: The given test successfully validated)
+  - [0000:03:00.1] : xilinx_vck5000-es1_gen3x16_base_2 : Test(s): 'PCIE link'
+
+```
+Afterwards, the command source /workspace/setup/vck5000/setup.sh must be run to configure the work environment of the card.
+Then, the following command must be used to avoid problems with the assignment of permissions: sudo chmod o=rw /dev/dri/render* 
+
+To compile the software, we run ./build.sh. This script uses 3 files located in [src](https://github.com/jrobador/resnet50-classification/tree/main/deploy/src).
+
+To run the model, run as follows: .../resnet_bc .../VCK5000/resnet50_tf2_BC.xmodel .../path-to-images/ 
+
+
+
+
+
 

@@ -1,0 +1,8 @@
+{
+    "lib": "libvart-dpu-runner.so",
+    "filename": "resnet50_tf2_BC.xmodel",
+    "kernel": [
+        "subgraph_fake_downsample_0"
+    ],
+    "target": "DPUCVDX8H_ISA1_F2W2"
+}

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""Runs a ResNet model on the ImageNet dataset."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -27,7 +26,7 @@ from tensorflow.keras.utils import Sequence
 import cv2
 import numpy as np
 
-import imagenet_preprocessing
+import images_preprocessing
 
 DEFAULT_IMAGE_SIZE = 224
 NUM_CHANNELS = 3
